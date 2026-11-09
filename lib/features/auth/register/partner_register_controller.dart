@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart' as dio;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -80,9 +81,17 @@ class PartnerRegisterController extends GetxController {
     final source = await ImageSourceSheet.show();
     if (source == null) return;
 
-    final picked = await _picker.pickImage(source: source, imageQuality: 80);
-    if (picked != null) {
-      final file = File(picked.path);
+    File? file;
+    if (source == ImagePickSource.camera) {
+      final picked = await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+      if (picked != null) file = File(picked.path);
+    } else {
+      final picked = await FilePicker.pickFile(type: FileType.image);
+      final path = picked?.path;
+      if (path != null) file = File(path);
+    }
+
+    if (file != null) {
       if (which == 'nidFront') nidFront.value = file;
       if (which == 'nidBack') nidBack.value = file;
       if (which == 'shopPic') shopPic.value = file;

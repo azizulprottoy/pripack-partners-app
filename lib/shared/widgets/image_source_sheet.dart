@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../res/theme/app_colors.dart';
+
+enum ImagePickSource { files, camera }
 
 class ImageSourceSheet {
   ImageSourceSheet._();
 
-  static Future<ImageSource?> show() {
-    return Get.bottomSheet<ImageSource>(
+  static Future<ImagePickSource?> show() {
+    return Get.bottomSheet<ImagePickSource>(
       Container(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         decoration: const BoxDecoration(
@@ -32,9 +33,9 @@ class ImageSourceSheet {
               children: [
                 Expanded(
                   child: _SourceButton(
-                    icon: Icons.photo_library_outlined,
+                    icon: Icons.folder_outlined,
                     label: 'Select from Files',
-                    onTap: () => Get.back(result: ImageSource.gallery),
+                    onTap: () => Get.back(result: ImagePickSource.files),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -42,7 +43,7 @@ class ImageSourceSheet {
                   child: _SourceButton(
                     icon: Icons.camera_alt_outlined,
                     label: 'Take a Picture',
-                    onTap: () => Get.back(result: ImageSource.camera),
+                    onTap: () => Get.back(result: ImagePickSource.camera),
                   ),
                 ),
               ],
