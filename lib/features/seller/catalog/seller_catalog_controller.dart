@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/utils/app_logger.dart';
@@ -8,24 +10,43 @@ import '../../../shared/models/seller_order_model.dart';
 import '../../../shared/widgets/snack_message.dart';
 import '../seller_repository.dart';
 
+// One description + optional reference file per physical unit in a line,
+// mirroring the customer checkout's per-unit instructions.
+class OrderUnitInput {
+  String description;
+  File? file;
+
+  OrderUnitInput({this.description = '', this.file});
+}
+
 class OrderCartLine {
   final CatalogProductModel product;
   final ProductVariant variant;
   int units;
   num sellingPrice;
+  final List<OrderUnitInput> unitInputs;
 
   OrderCartLine({
     required this.product,
     required this.variant,
     this.units = 1,
     required this.sellingPrice,
-  });
+  }) : unitInputs = List.generate(units, (_) => OrderUnitInput());
 
   String get key => '${product.id}::${variant.label}';
   num get sellerPrice => variant.sellerPrice ?? 0;
   num get cost => sellerPrice * units;
   num get selling => sellingPrice * units;
   num get profit => selling - cost;
+
+  // Keeps one unit-input slot per unit when the quantity changes.
+  void syncUnitInputs() {
+    if (units < unitInputs.length) {
+      unitInputs.removeRange(units, unitInputs.length);
+    } else {
+      unitInputs.addAll(List.generate(units - unitInputs.length, (_) => OrderUnitInput()));
+    }
+  }
 }
 
 class SellerCatalogController extends GetxController {
@@ -110,6 +131,7 @@ class SellerCatalogController extends GetxController {
 
     if (existingIndex >= 0) {
       cartLines[existingIndex].units += qty;
+      cartLines[existingIndex].syncUnitInputs();
       cartLines.refresh();
     } else {
       cartLines.add(
@@ -129,6 +151,32 @@ class SellerCatalogController extends GetxController {
     final line = cartLines.firstWhereOrNull((l) => l.key == key);
     if (line != null && units > 0) {
       line.units = units;
+      line.syncUnitInputs();
+      cartLines.refresh();
+    }
+  }
+
+  void updateUnitDescription(String key, int index, String text) {
+    final line = cartLines.firstWhereOrNull((l) => l.key == key);
+    if (line != null && index < line.unitInputs.length) {
+      line.unitInputs[index].description = text;
+    }
+  }
+
+  Future<void> pickUnitFile(String key, int index) async {
+    final picked = await FilePicker.pickFile();
+    if (picked?.path == null) return;
+    final line = cartLines.firstWhereOrNull((l) => l.key == key);
+    if (line != null && index < line.unitInputs.length) {
+      line.unitInputs[index].file = File(picked!.path!);
+      cartLines.refresh();
+    }
+  }
+
+  void removeUnitFile(String key, int index) {
+    final line = cartLines.firstWhereOrNull((l) => l.key == key);
+    if (line != null && index < line.unitInputs.length) {
+      line.unitInputs[index].file = null;
       cartLines.refresh();
     }
   }
@@ -170,6 +218,13 @@ class SellerCatalogController extends GetxController {
       }
     }
 
+    for (final line in cartLines) {
+      if (line.unitInputs.any((u) => u.description.trim().isEmpty)) {
+        SnackMessage.error('Add instructions for every unit of "${line.product.productName}".');
+        return false;
+      }
+    }
+
     isSubmitting.value = true;
     try {
       final itemsPayload = cartLines.map((l) {
@@ -179,8 +234,18 @@ class SellerCatalogController extends GetxController {
           'variantLabel': l.variant.label,
           'units': l.units,
           'sellingPrice': orderFor.value == 'self' ? l.sellerPrice : l.sellingPrice,
+          'unitDetails': l.unitInputs.map((u) => {'description': u.description.trim()}).toList(),
         };
       }).toList();
+
+      final unitFiles = <String, File>{};
+      for (var pi = 0; pi < cartLines.length; pi++) {
+        final line = cartLines[pi];
+        for (var ui = 0; ui < line.unitInputs.length; ui++) {
+          final file = line.unitInputs[ui].file;
+          if (file != null) unitFiles['unit_file_${pi}_$ui'] = file;
+        }
+      }
 
       final customerInfo = orderFor.value == 'customer'
           ? OrderCustomerInfo(
@@ -195,6 +260,7 @@ class SellerCatalogController extends GetxController {
         customer: customerInfo,
         items: itemsPayload,
         note: noteController.text.trim(),
+        unitFiles: unitFiles,
       );
 
       SnackMessage.success('Order placed successfully! Admin will verify soon.');

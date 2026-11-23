@@ -6,6 +6,7 @@ import '../../shared/models/admin_dashboard_model.dart';
 import '../../shared/models/catalog_product_model.dart';
 import '../../shared/models/partner_model.dart';
 import '../../shared/models/seller_order_model.dart';
+import '../../shared/models/seller_payment_model.dart';
 
 class AdminRepository extends GetxService {
   final DioClient _dio = Get.find<DioClient>();
@@ -91,6 +92,26 @@ class AdminRepository extends GetxService {
     await _dio.put(
       '${ApiEndpoints.adminSellerPrices}/$productId',
       data: {'prices': prices},
+    );
+  }
+
+  Future<List<SellerPaymentModel>> getSellerPayments({String? status}) async {
+    final params = <String, dynamic>{};
+    if (status != null && status.isNotEmpty) params['status'] = status;
+    final res = await _dio.get(ApiEndpoints.adminSellerPayments, queryParameters: params);
+    final data = res.data as Map<String, dynamic>;
+    final list = data['payments'] as List? ?? [];
+    return list.map((e) => SellerPaymentModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> reviewSellerPayment({
+    required String paymentId,
+    required String action, // 'verify' | 'reject'
+    String? note,
+  }) async {
+    await _dio.patch(
+      '${ApiEndpoints.adminReviewSellerPayment}/$paymentId',
+      data: {'action': action, 'note': note ?? ''},
     );
   }
 }

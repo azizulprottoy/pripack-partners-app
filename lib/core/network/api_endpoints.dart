@@ -20,6 +20,11 @@ class ApiEndpoints {
   static const String sellerCatalog = '/seller/catalog';
   static const String sellerOrders = '/seller/orders';
   static const String sellerChat = '/sellerchat'; // + /:sellerId
+  static const String sellerPaymentDue = '/seller/payments/due';
+  static const String sellerPayments = '/seller/payments';
+
+  // Payment methods (admin-configured bKash/Nagad numbers, shared with customer checkout)
+  static const String paymentMethods = '/payment';
 
   // Supplier Endpoints
   static const String supplierMe = '/supplier/me';
@@ -42,6 +47,8 @@ class ApiEndpoints {
   static const String adminSellerOrders = '/admin/sellerorders';
   static const String adminUpdateSellerOrder = '/admin/sellerorders'; // + /:id
   static const String adminSellerPrices = '/admin/sellerprices'; // + /:productId
+  static const String adminSellerPayments = '/admin/sellerpayments';
+  static const String adminReviewSellerPayment = '/admin/sellerpayments'; // + /:id
   static const String adminPartnerChats = '/admin/partnerchats';
   static const String adminPartnerChatThread = '/admin/partnerchats'; // + /:type/:id
   static const String adminTransferCustomerOrder = '/admin/orders'; // + /:id/supplier

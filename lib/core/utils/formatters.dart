@@ -30,6 +30,23 @@ class AppFormatters {
     }
   }
 
+  // Seller order descriptions are written in a rich-text editor on the web
+  // portal and stored as raw HTML; Flutter has no HTML-rendering Text widget,
+  // so strip tags down to plain text for display here.
+  static String stripHtml(String? html) {
+    if (html == null || html.isEmpty) return '';
+    return html
+        .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'</(p|div|li)>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<[^>]*>'), '')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+        .trim();
+  }
+
   static Color getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
       case 'approved':

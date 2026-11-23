@@ -12,7 +12,6 @@ import '../seller/chat/seller_chat_view.dart';
 import '../seller/dashboard/seller_dashboard_view.dart';
 import '../seller/orders/seller_orders_view.dart';
 import '../seller/profile/seller_profile_view.dart';
-import '../supplier/chat/supplier_chat_view.dart';
 import '../supplier/jobs/supplier_jobs_view.dart';
 import '../supplier/profile/supplier_profile_view.dart';
 import 'home_shell_controller.dart';
@@ -28,18 +27,18 @@ class HomeShellView extends GetView<HomeShellController> {
           appBar: AppBar(
             title: Row(
               children: [
+                Image.asset('assets/logo.png', height: 28, fit: BoxFit.contain),
+                const SizedBox(width: 10),
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(Icons.storefront_rounded, size: 20, color: AppColors.primary),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  'Pripack ${controller.roleDisplayName}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  child: Text(
+                    controller.roleDisplayName,
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11, color: AppColors.primary),
+                  ),
                 ),
               ],
             ),
@@ -63,7 +62,6 @@ class HomeShellView extends GetView<HomeShellController> {
                 index: tab,
                 children: const [
                   SupplierJobsView(),
-                  SupplierChatView(),
                   SupplierProfileView(),
                 ],
               );
@@ -108,7 +106,7 @@ class HomeShellView extends GetView<HomeShellController> {
                   BottomNavigationBarItem(
                     icon: Icon(Icons.chat_outlined),
                     activeIcon: Icon(Icons.chat),
-                    label: 'Messages',
+                    label: 'Customers',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.person_outline),
@@ -126,11 +124,6 @@ class HomeShellView extends GetView<HomeShellController> {
                     icon: Icon(Icons.precision_manufacturing_outlined),
                     activeIcon: Icon(Icons.precision_manufacturing),
                     label: 'Production',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.support_agent_outlined),
-                    activeIcon: Icon(Icons.support_agent),
-                    label: 'Admin Chat',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.business_outlined),

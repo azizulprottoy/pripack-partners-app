@@ -6,6 +6,8 @@ import '../../../shared/widgets/app_network_image.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../../shared/widgets/multi_select_dialog.dart';
 import '../../../shared/widgets/status_badge.dart';
+import '../chat/seller_admin_chat_view.dart';
+import '../payments/seller_payment_history_view.dart';
 import 'seller_profile_controller.dart';
 
 class SellerProfileView extends GetView<SellerProfileController> {
@@ -115,6 +117,59 @@ class SellerProfileView extends GetView<SellerProfileController> {
                           }).toList(),
                         ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Chat with Admin
+                InkWell(
+                  onTap: () => Get.to(() => Scaffold(
+                        appBar: AppBar(title: const Text('Admin Chat')),
+                        body: const SellerAdminChatView(),
+                      )),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.support_agent_outlined, color: AppColors.primary),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text('Chat with Admin', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        ),
+                        const Icon(Icons.chevron_right, color: AppColors.textLight),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Payment History
+                InkWell(
+                  onTap: () => Get.to(() => const SellerPaymentHistoryView()),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.receipt_long_outlined, color: AppColors.primary),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text('Payment History', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        ),
+                        const Icon(Icons.chevron_right, color: AppColors.textLight),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),

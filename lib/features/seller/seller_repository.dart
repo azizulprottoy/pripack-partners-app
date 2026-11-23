@@ -1,4 +1,7 @@
-import 'package:get/get.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 import '../../core/network/api_endpoints.dart';
 import '../../core/network/dio_client.dart';
 import '../../core/utils/app_logger.dart';
@@ -6,6 +9,7 @@ import '../../shared/models/catalog_product_model.dart';
 import '../../shared/models/chat_model.dart';
 import '../../shared/models/partner_model.dart';
 import '../../shared/models/seller_order_model.dart';
+import '../../shared/models/seller_payment_model.dart';
 
 class SellerCatalogResult {
   final List<String> categories;
@@ -59,17 +63,24 @@ class SellerRepository extends GetxService {
     OrderCustomerInfo? customer,
     required List<Map<String, dynamic>> items,
     String? note,
+    Map<String, File> unitFiles = const {},
   }) async {
-    final body = <String, dynamic>{
+    final formMap = <String, dynamic>{
       'orderFor': orderFor,
-      'items': items,
+      'items': jsonEncode(items),
       'note': note ?? '',
     };
     if (orderFor == 'customer' && customer != null) {
-      body['customer'] = customer.toJson();
+      formMap['customer'] = jsonEncode(customer.toJson());
+    }
+    for (final entry in unitFiles.entries) {
+      formMap[entry.key] = await MultipartFile.fromFile(
+        entry.value.path,
+        filename: entry.value.path.split('/').last,
+      );
     }
 
-    final res = await _dio.post(ApiEndpoints.sellerOrders, data: body);
+    final res = await _dio.post(ApiEndpoints.sellerOrders, data: FormData.fromMap(formMap));
     final data = res.data as Map<String, dynamic>;
     return SellerOrderModel.fromJson(data['order'] as Map<String, dynamic>);
   }
@@ -79,6 +90,48 @@ class SellerRepository extends GetxService {
     final data = res.data as Map<String, dynamic>;
     final list = data['orders'] as List? ?? [];
     return list.map((e) => SellerOrderModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<SellerPaymentDue> getPaymentDue() async {
+    final res = await _dio.get(ApiEndpoints.sellerPaymentDue);
+    final data = res.data as Map<String, dynamic>;
+    final due = num.tryParse(data['due']?.toString() ?? '0') ?? 0;
+    final orders = (data['orders'] as List? ?? [])
+        .map((e) => SellerDueOrderModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+    return SellerPaymentDue(due: due, orders: orders);
+  }
+
+  Future<List<PaymentMethodModel>> getPaymentMethods() async {
+    final res = await _dio.get(ApiEndpoints.paymentMethods);
+    final list = res.data as List? ?? [];
+    return list.map((e) => PaymentMethodModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<SellerPaymentModel> submitPayment({
+    required String method,
+    required String paymentNumber,
+    required String transactionId,
+    List<String>? orderIds,
+  }) async {
+    final res = await _dio.post(
+      ApiEndpoints.sellerPayments,
+      data: {
+        'method': method,
+        'paymentNumber': paymentNumber,
+        'transactionId': transactionId,
+        if (orderIds != null && orderIds.isNotEmpty) 'orderIds': orderIds,
+      },
+    );
+    final data = res.data as Map<String, dynamic>;
+    return SellerPaymentModel.fromJson(data['payment'] as Map<String, dynamic>);
+  }
+
+  Future<List<SellerPaymentModel>> getMyPayments() async {
+    final res = await _dio.get(ApiEndpoints.sellerPayments);
+    final data = res.data as Map<String, dynamic>;
+    final list = data['payments'] as List? ?? [];
+    return list.map((e) => SellerPaymentModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<List<SellerCustomerConversationModel>> getCustomerConversations(String sellerId) async {

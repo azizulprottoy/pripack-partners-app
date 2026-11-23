@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'app/app.dart';
@@ -20,6 +21,8 @@ void main() {
       AppLogger.error('Uncaught PlatformDispatcher error', error, stack);
       return true;
     };
+
+    await dotenv.load(fileName: '.env');
 
     // Initialize persistent key-value storage
     await GetStorage.init();

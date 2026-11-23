@@ -7,6 +7,7 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../../shared/widgets/metric_card.dart';
 import '../../../shared/widgets/status_badge.dart';
+import '../payments/seller_payment_sheet.dart';
 import 'seller_dashboard_controller.dart';
 
 class SellerDashboardView extends GetView<SellerDashboardController> {
@@ -82,6 +83,55 @@ class SellerDashboardView extends GetView<SellerDashboardController> {
                 ),
                 const SizedBox(height: 16),
               ],
+
+              // Payment Due
+              if (controller.paymentDue.value > 0)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Payment Due',
+                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFFB45309)),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              AppFormatters.taka(controller.paymentDue.value),
+                              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20, color: Color(0xFFB45309)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final paid = await showModalBottomSheet<bool>(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (_) => const SellerPaymentSheet(),
+                          );
+                          if (paid == true) controller.loadDashboard();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.warning,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        child: const Text('Pay Now', style: TextStyle(fontWeight: FontWeight.w700)),
+                      ),
+                    ],
+                  ),
+                ),
+              if (controller.paymentDue.value > 0) const SizedBox(height: 16),
 
               // Metric Cards Grid
               Row(

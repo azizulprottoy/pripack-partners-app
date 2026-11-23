@@ -17,6 +17,7 @@ class SellerDashboardController extends GetxController {
   final orders = <SellerOrderModel>[].obs;
   final conversations = <SellerCustomerConversationModel>[].obs;
   final adminMessages = <ChatMessageModel>[].obs;
+  final Rx<num> paymentDue = Rx<num>(0);
 
   final isLoading = true.obs;
 
@@ -51,6 +52,8 @@ class SellerDashboardController extends GetxController {
 
       final oList = await _sellerRepo.getMyOrders();
       orders.assignAll(oList);
+
+      paymentDue.value = (await _sellerRepo.getPaymentDue()).due;
 
       final sellerId = _session.user?['userId']?.toString() ?? _session.user?['_id']?.toString() ?? '';
       if (sellerId.isNotEmpty) {

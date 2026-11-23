@@ -1,3 +1,17 @@
+class OrderUnitDetail {
+  final String description;
+  final String? filePath;
+
+  OrderUnitDetail({required this.description, this.filePath});
+
+  factory OrderUnitDetail.fromJson(Map<String, dynamic> json) {
+    return OrderUnitDetail(
+      description: json['description']?.toString() ?? '',
+      filePath: json['filePath']?.toString(),
+    );
+  }
+}
+
 class OrderItemModel {
   final String productId;
   final String productName;
@@ -9,6 +23,7 @@ class OrderItemModel {
   final num cost;
   final num selling;
   final num profit;
+  final List<OrderUnitDetail> unitDetails;
 
   OrderItemModel({
     required this.productId,
@@ -21,6 +36,7 @@ class OrderItemModel {
     required this.cost,
     required this.selling,
     required this.profit,
+    this.unitDetails = const [],
   });
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +51,9 @@ class OrderItemModel {
       cost: num.tryParse(json['cost']?.toString() ?? '0') ?? 0,
       selling: num.tryParse(json['selling']?.toString() ?? '0') ?? 0,
       profit: num.tryParse(json['profit']?.toString() ?? '0') ?? 0,
+      unitDetails: (json['unitDetails'] as List? ?? [])
+          .map((e) => OrderUnitDetail.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 

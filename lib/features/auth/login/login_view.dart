@@ -22,21 +22,11 @@ class LoginView extends GetView<LoginController> {
             children: [
               const SizedBox(height: 32),
               Center(
-                child: Container(
-                  width: 76,
-                  height: 76,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.storefront_rounded, size: 44, color: AppColors.primary),
-                  ),
-                ),
+                child: Image.asset('assets/logo.png', height: 44, fit: BoxFit.contain),
               ),
               const SizedBox(height: 24),
               const Text(
-                'Pripack Partner Portal',
+                'Partner Portal',
                 style: AppTextStyles.h1,
                 textAlign: TextAlign.center,
               ),

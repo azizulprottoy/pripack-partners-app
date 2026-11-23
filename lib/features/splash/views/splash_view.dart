@@ -29,8 +29,7 @@ class SplashView extends GetView<SplashController> {
             children: [
               const Spacer(),
               Container(
-                width: 90,
-                height: 90,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
@@ -42,17 +41,11 @@ class SplashView extends GetView<SplashController> {
                     ),
                   ],
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.storefront_rounded,
-                    size: 52,
-                    color: AppColors.primary,
-                  ),
-                ),
+                child: Image.asset('assets/logo.png', height: 40, fit: BoxFit.contain),
               ),
               const SizedBox(height: 24),
               const Text(
-                'Pripack Partner Portal',
+                'Partner Portal',
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,

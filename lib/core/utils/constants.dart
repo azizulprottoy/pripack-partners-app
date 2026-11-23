@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   AppConstants._();
@@ -9,9 +10,10 @@ class AppConstants {
   /// Backend has no API prefix — every route is a bare path off this host.
   /// Android emulator uses 10.0.2.2; iOS simulator / Web use localhost.
   static String get baseUrl {
-    if (kIsWeb) return 'http://localhost:5001';
-    if (Platform.isAndroid) return 'http://10.0.2.2:5001';
-    return 'http://localhost:5001';
+    final defaultUrl = dotenv.env['API_BASE_URL_DEFAULT'] ?? 'http://localhost:5001';
+    if (kIsWeb) return defaultUrl;
+    if (Platform.isAndroid) return dotenv.env['API_BASE_URL_ANDROID'] ?? 'http://10.0.2.2:5001';
+    return defaultUrl;
   }
 
   // Storage keys

@@ -5,6 +5,7 @@ import '../../../res/theme/app_colors.dart';
 import '../../../res/theme/app_text_styles.dart';
 import '../../../shared/models/supplier_job_model.dart';
 import '../../../shared/widgets/app_network_image.dart';
+import '../../../shared/widgets/attachment_preview.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../../shared/widgets/status_badge.dart';
@@ -246,9 +247,26 @@ class _JobCardState extends State<_JobCard> {
                                 ],
                                 if (item.unitDetails.isNotEmpty) ...[
                                   const SizedBox(height: 4),
-                                  ...item.unitDetails.map((u) {
-                                    return Text('• ${u.description}',
-                                        style: AppTextStyles.caption.copyWith(fontStyle: FontStyle.italic));
+                                  ...item.unitDetails.asMap().entries.map((entry) {
+                                    final u = entry.value;
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 4),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              '• Unit ${entry.key + 1}: ${u.description}',
+                                              style: AppTextStyles.caption.copyWith(fontStyle: FontStyle.italic),
+                                            ),
+                                          ),
+                                          if (u.filePath != null) ...[
+                                            const SizedBox(width: 6),
+                                            AttachmentPreview(filePath: u.filePath!),
+                                          ],
+                                        ],
+                                      ),
+                                    );
                                   }),
                                 ],
                               ],

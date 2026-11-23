@@ -562,6 +562,77 @@ class _OrderReviewSheet extends StatelessWidget {
                                     Text('Qty: ${l.units}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                   ],
                                 ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Instructions per unit',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                                ),
+                                const SizedBox(height: 4),
+                                ...List.generate(l.unitInputs.length, (ui) {
+                                  final unit = l.unitInputs[ui];
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: AppColors.border),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Unit ${ui + 1}', style: AppTextStyles.caption),
+                                        const SizedBox(height: 4),
+                                        TextFormField(
+                                          key: ValueKey('${l.key}_unit_$ui'),
+                                          initialValue: unit.description,
+                                          maxLines: 2,
+                                          style: const TextStyle(fontSize: 12),
+                                          decoration: const InputDecoration(
+                                            isDense: true,
+                                            hintText: 'What to print/pack on this unit *',
+                                            hintStyle: TextStyle(fontSize: 11),
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                          ),
+                                          onChanged: (val) => controller.updateUnitDescription(l.key, ui, val),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        if (unit.file != null)
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.attach_file, size: 14, color: AppColors.primary),
+                                              const SizedBox(width: 4),
+                                              Expanded(
+                                                child: Text(
+                                                  unit.file!.path.split('/').last,
+                                                  style: const TextStyle(fontSize: 11),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              InkWell(
+                                                onTap: () => controller.removeUnitFile(l.key, ui),
+                                                child: const Icon(Icons.close, size: 14, color: AppColors.error),
+                                              ),
+                                            ],
+                                          )
+                                        else
+                                          InkWell(
+                                            onTap: () => controller.pickUnitFile(l.key, ui),
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.upload_file, size: 14, color: AppColors.primary),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  'Attach reference file (optional)',
+                                                  style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                }),
                                 if (isCustomer) ...[
                                   const SizedBox(height: 8),
                                   Row(

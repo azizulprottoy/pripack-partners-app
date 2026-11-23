@@ -5,6 +5,7 @@ import '../../../core/utils/formatters.dart';
 import '../../../res/theme/app_colors.dart';
 import '../../../res/theme/app_text_styles.dart';
 import '../../../shared/models/seller_order_model.dart';
+import '../../../shared/widgets/attachment_preview.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../../shared/widgets/status_badge.dart';
@@ -265,12 +266,41 @@ class _AdminOrderActionSheetState extends State<_AdminOrderActionSheet> {
                           color: AppColors.inputBg,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('${item.units}x ${item.productName} (${item.variantLabel})',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                            Text(AppFormatters.taka(item.cost), style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('${item.units}x ${item.productName} (${item.variantLabel})',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                Text(AppFormatters.taka(item.cost), style: const TextStyle(fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            if (item.unitDetails.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              ...item.unitDetails.asMap().entries.map((entry) {
+                                final u = entry.value;
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Unit ${entry.key + 1}: ${AppFormatters.stripHtml(u.description)}',
+                                          style: AppTextStyles.caption.copyWith(fontStyle: FontStyle.italic),
+                                        ),
+                                      ),
+                                      if (u.filePath != null) ...[
+                                        const SizedBox(width: 6),
+                                        AttachmentPreview(filePath: u.filePath!),
+                                      ],
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
                           ],
                         ),
                       );
