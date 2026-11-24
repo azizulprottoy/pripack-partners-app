@@ -135,6 +135,24 @@ class StatusHistoryItem {
   }
 }
 
+class CcDeliveryInfo {
+  final String orderId;
+  final String? orderNumber;
+  final String? trackingId;
+  final String? status;
+
+  CcDeliveryInfo({required this.orderId, this.orderNumber, this.trackingId, this.status});
+
+  factory CcDeliveryInfo.fromJson(Map<String, dynamic> json) {
+    return CcDeliveryInfo(
+      orderId: json['orderId']?.toString() ?? '',
+      orderNumber: json['orderNumber']?.toString(),
+      trackingId: json['trackingId']?.toString(),
+      status: json['status']?.toString(),
+    );
+  }
+}
+
 class SellerOrderModel {
   final String id;
   final String referenceCode;
@@ -150,6 +168,7 @@ class SellerOrderModel {
   final Map<String, dynamic>? supplier;
   final String? note;
   final List<StatusHistoryItem> statusHistory;
+  final CcDeliveryInfo? ccDelivery;
   final dynamic createdAt;
 
   SellerOrderModel({
@@ -167,6 +186,7 @@ class SellerOrderModel {
     this.supplier,
     this.note,
     this.statusHistory = const [],
+    this.ccDelivery,
     this.createdAt,
   });
 
@@ -200,6 +220,9 @@ class SellerOrderModel {
       statusHistory: (json['statusHistory'] as List? ?? [])
           .map((e) => StatusHistoryItem.fromJson(e as Map<String, dynamic>))
           .toList(),
+      ccDelivery: json['ccDelivery'] is Map<String, dynamic>
+          ? CcDeliveryInfo.fromJson(json['ccDelivery'] as Map<String, dynamic>)
+          : null,
       createdAt: json['createdAt'],
     );
   }

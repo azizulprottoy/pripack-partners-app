@@ -46,6 +46,7 @@ class ApiEndpoints {
   static const String adminSupplierCategories = '/admin/suppliers'; // + /:id/categories
   static const String adminSellerOrders = '/admin/sellerorders';
   static const String adminUpdateSellerOrder = '/admin/sellerorders'; // + /:id
+  static const String adminRequestRider = '/admin/sellerorders'; // + /:id/request-rider
   static const String adminSellerPrices = '/admin/sellerprices'; // + /:productId
   static const String adminSellerPayments = '/admin/sellerpayments';
   static const String adminReviewSellerPayment = '/admin/sellerpayments'; // + /:id

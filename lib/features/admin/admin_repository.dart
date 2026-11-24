@@ -59,6 +59,23 @@ class AdminRepository extends GetxService {
     await _dio.patch('${ApiEndpoints.adminUpdateSellerOrder}/$orderId', data: body);
   }
 
+  // Books a CC-Delivery rider: pickup from the assigned supplier, deliver to
+  // the order's customer (or seller, for a 'self' order). `pickup` is only
+  // required the first time for a given supplier — omit it on later orders
+  // from the same supplier (the backend caches the address after the first
+  // successful call).
+  Future<void> requestRider({
+    required String orderId,
+    Map<String, dynamic>? pickup,
+    required Map<String, dynamic> delivery,
+    String? serviceType,
+  }) async {
+    final body = <String, dynamic>{'delivery': delivery};
+    if (pickup != null) body['pickup'] = pickup;
+    if (serviceType != null) body['service_type'] = serviceType;
+    await _dio.post('${ApiEndpoints.adminRequestRider}/$orderId/request-rider', data: body);
+  }
+
   Future<List<CatalogProductModel>> getProducts() async {
     final res = await _dio.get(ApiEndpoints.getProducts);
     final data = res.data;

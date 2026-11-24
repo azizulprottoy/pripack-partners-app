@@ -10,6 +10,7 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../../shared/widgets/status_badge.dart';
 import 'admin_seller_orders_controller.dart';
+import 'request_rider_sheet.dart';
 
 class AdminSellerOrdersView extends GetView<AdminSellerOrdersController> {
   const AdminSellerOrdersView({super.key});
@@ -382,22 +383,71 @@ class _AdminOrderActionSheetState extends State<_AdminOrderActionSheet> {
                       const SizedBox(height: 16),
                     ],
 
-                    // Mark Picked Up
+                    // Rider request / tracking
                     if (o.status == AppConstants.orderTransferred &&
                         o.supplierStatus == AppConstants.jobPickupRequested) ...[
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final ok = await widget.controller.updateOrder(orderId: o.id, action: 'pickedup');
-                          if (ok) Get.back();
-                        },
-                        icon: const Icon(Icons.airport_shuttle_outlined),
-                        label: const Text('Confirm Rider Picked Up from Supplier'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.cyan,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(double.infinity, 48),
+                      if (o.ccDelivery == null) ...[
+                        ElevatedButton.icon(
+                          onPressed: () => showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (_) => RequestRiderSheet(order: o, controller: widget.controller),
+                          ),
+                          icon: const Icon(Icons.delivery_dining_outlined),
+                          label: const Text('Request Rider'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.cyan,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 48),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Or confirm pickup yourself if you handled it without a CC-Delivery rider:',
+                          style: AppTextStyles.caption,
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            final ok = await widget.controller.updateOrder(orderId: o.id, action: 'pickedup');
+                            if (ok) Get.back();
+                          },
+                          icon: const Icon(Icons.airport_shuttle_outlined),
+                          label: const Text('Confirm Picked Up Manually'),
+                          style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44)),
+                        ),
+                      ] else ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.cyan.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.cyan.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.delivery_dining_outlined, color: AppColors.cyan),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Rider requested — ${o.ccDelivery!.trackingId ?? o.ccDelivery!.orderNumber ?? ''}',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
+                                    Text(
+                                      'Status: ${(o.ccDelivery!.status ?? 'booked').replaceAll('_', ' ')}',
+                                      style: AppTextStyles.caption,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 12),
                     ],
 

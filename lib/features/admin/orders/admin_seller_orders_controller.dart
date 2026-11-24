@@ -1,4 +1,5 @@
-import 'package:get/get.dart';
+import 'package:dio/dio.dart';
+import 'package:get/get.dart' hide Response;
 import '../../../core/utils/app_logger.dart';
 import '../../../shared/models/partner_model.dart';
 import '../../../shared/models/seller_order_model.dart';
@@ -66,6 +67,35 @@ class AdminSellerOrdersController extends GetxController {
       return true;
     } catch (e) {
       SnackMessage.error('Failed to update order status.');
+      return false;
+    } finally {
+      isUpdating.value = false;
+    }
+  }
+
+  // Books a CC-Delivery rider for this order. Unlike updateOrder, failures
+  // here are surfaced verbatim — the backend's message tells the admin
+  // exactly what's missing (e.g. a supplier's pickup address isn't saved
+  // yet), which is the whole point of the two-step flow.
+  Future<bool> requestRider({
+    required String orderId,
+    Map<String, dynamic>? pickup,
+    required Map<String, dynamic> delivery,
+  }) async {
+    isUpdating.value = true;
+    try {
+      await _adminRepo.requestRider(orderId: orderId, pickup: pickup, delivery: delivery);
+      SnackMessage.success('Rider requested.');
+      await loadOrders();
+      return true;
+    } on DioException catch (e, st) {
+      AppLogger.error('AdminSellerOrdersController.requestRider failed', e, st);
+      final message = (e.response?.data is Map) ? e.response?.data['message']?.toString() : null;
+      SnackMessage.error(message ?? 'Failed to request rider.');
+      return false;
+    } catch (e, st) {
+      AppLogger.error('AdminSellerOrdersController.requestRider failed', e, st);
+      SnackMessage.error('Failed to request rider.');
       return false;
     } finally {
       isUpdating.value = false;
