@@ -22,21 +22,17 @@ class LoginView extends GetView<LoginController> {
             children: [
               const SizedBox(height: 32),
               Center(
-                child: Image.asset('assets/logo.png', height: 44, fit: BoxFit.contain),
+                child: Image.asset('assets/logo.png', height: 74, fit: BoxFit.contain),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Partner Portal',
-                style: AppTextStyles.h1,
-                textAlign: TextAlign.center,
-              ),
+
               const SizedBox(height: 6),
               const Text(
-                'Sign in with your registered partner or admin credentials',
+                'Sign in with your registered partner credentials',
                 style: AppTextStyles.bodyMuted,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 100),
 
               // Unified Input Fields
               CustomTextField(
